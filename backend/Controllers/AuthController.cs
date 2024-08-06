@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 [Route("/api/auth")]
 [ApiController]
@@ -33,6 +34,11 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult> Register(User user)
     {
+        var u = await _context.Users.Where<User>(u => u.Username == user.Username).FirstOrDefaultAsync();
+        if (u != null)
+        {
+            return BadRequest(new { error = $"username ${user.Username} is already used" });
+        }
         var hashedPass = BCrypt.Net.BCrypt.HashPassword(user.Password);
         user.Password = hashedPass;
 
@@ -41,6 +47,24 @@ public class AuthController : ControllerBase
 
         var token = GenerateJwtToken(user);
         return Ok(new { token });
+    }
+
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<ActionResult> Login(User user)
+    {
+        var userFromDb = await _context.Users.Where<User>(u => u.Username == user.Username).FirstOrDefaultAsync();
+        if (userFromDb == null)
+        {
+            return NotFound($"{user.Username} not found");
+        }
+        var passwordsMatch = BCrypt.Net.BCrypt.Verify(user.Password, userFromDb.Password);
+        if (passwordsMatch)
+        {
+            var token = GenerateJwtToken(user);
+            return Ok(new { token });
+        }
+        return Unauthorized(new { error = "Incorrect password" });
     }
 
     private string GenerateJwtToken(User user)
