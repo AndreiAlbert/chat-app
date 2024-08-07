@@ -35,6 +35,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true
         };
+        x.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"Auth failed: {context.Exception.Message} ");
+                return Task.CompletedTask;
+            }
+        };
     });
 builder.Services.AddAuthorization();
 var app = builder.Build();
@@ -48,7 +56,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("frontend");
-
 app.MapHub<ChatHub>("/Chat");
 app.MapControllers();
 
