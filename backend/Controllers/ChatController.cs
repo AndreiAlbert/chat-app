@@ -33,7 +33,6 @@ public class ChatController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [AllowAnonymous]
     public async Task<ActionResult<ChatRoom>> GetChatRoom(int id)
     {
         var chatRoom = await _context.ChatRooms.FindAsync(id);
