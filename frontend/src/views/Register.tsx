@@ -3,8 +3,10 @@ import { CustomInput } from "../components/CustomInput";
 import { useAuth } from "../contexts/AuthContext";
 import { isAxiosError } from "axios";
 import axiosInstance from "../axios/axios";
+import { useNavigate } from "react-router-dom";
 
 export function Register() {
+  const navigate = useNavigate();
   const { token } = useAuth();
   if (token) {
     console.log('hei user is logged in');
@@ -33,6 +35,7 @@ export function Register() {
       }
       const { token } = response.data;
       localStorage.setItem("token", token);
+      navigate("/");
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         console.log(error.response?.data);
