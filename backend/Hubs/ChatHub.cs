@@ -44,8 +44,20 @@ public class ChatHub : Hub
             chatRoom.Users.Add(user);
             await _context.SaveChangesAsync();
         }
-
         await Groups.AddToGroupAsync(Context.ConnectionId, chatRoom.Name);
-        await Clients.GroupExcept(chatRoom.Name, Context.ConnectionId).SendAsync("UserJoined", username);
+        await Clients.OthersInGroup(chatRoom.Name).SendAsync("UserJoined", username);
+    }
+
+    public async Task LeaveChat(int chatRoomId)
+    {
+        var username = Context.User?.FindFirst(ClaimTypes.Name)?.Value;
+        var chatRoom = await _context.ChatRooms.FindAsync(chatRoomId);
+        if (chatRoom == null)
+        {
+            Console.WriteLine("chatroom is null");
+            return;
+        }
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatRoom.Name);
+        await Clients.Groups(chatRoom.Name).SendAsync("UserLeft", username);
     }
 }
