@@ -13,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ChatAppContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("frontend", builder =>
@@ -23,39 +24,62 @@ builder.Services.AddCors(opt =>
         .AllowCredentials();
     });
 });
+
+// Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(x =>
+    .AddJwtBearer(options =>
     {
-        x.TokenValidationParameters = new TokenValidationParameters
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey
-                (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true
         };
-        x.Events = new JwtBearerEvents
+
+        // Configure the JWT Bearer events for SignalR authentication
+        options.Events = new JwtBearerEvents
         {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                Console.WriteLine(accessToken);
+
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/Chat"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            },
             OnAuthenticationFailed = context =>
             {
-                Console.WriteLine($"Auth failed: {context.Exception.Message} ");
+                Console.WriteLine($"Auth failed: {context.Exception.Message}");
                 return Task.CompletedTask;
             }
         };
     });
+
 builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.UseCors("frontend");
+
 app.MapHub<ChatHub>("/Chat");
 app.MapControllers();
 

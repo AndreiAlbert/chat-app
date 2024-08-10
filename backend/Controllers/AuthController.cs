@@ -44,7 +44,6 @@ public class AuthController : ControllerBase
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
-
         var token = GenerateJwtToken(user);
         return Ok(new { token });
     }
@@ -61,7 +60,7 @@ public class AuthController : ControllerBase
         var passwordsMatch = BCrypt.Net.BCrypt.Verify(user.Password, userFromDb.Password);
         if (passwordsMatch)
         {
-            var token = GenerateJwtToken(user);
+            var token = GenerateJwtToken(userFromDb);
             return Ok(new { token });
         }
         return Unauthorized(new { error = "Incorrect password" });
@@ -75,6 +74,7 @@ public class AuthController : ControllerBase
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+            new Claim(ClaimTypes.Name, user.Username),
             new Claim("id", user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
