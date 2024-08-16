@@ -21,16 +21,6 @@ export function ChatRoom() {
         throw new Error("error lmao");
       }
       const roomData: IChatRoom = response.data;
-      roomData.messages = roomData.messages.map((message) => ({
-        ...message,
-        timeStamp: new Date(message.timestamp).toLocaleString('en-us', {
-          day: 'numeric',
-          month: 'short',
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: false,
-        }),
-      }));
       console.log(roomData);
       setRoom(roomData);
       setMessages(roomData.messages);
