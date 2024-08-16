@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextField, Button, Container, Typography, Box } from "@mui/material";
+import { TextField, Button, Container, Typography, Box, Alert } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
 import { isAxiosError } from "axios";
 import axiosInstance from "../axios/axios";
@@ -8,10 +8,6 @@ import { useNavigate } from "react-router-dom";
 export function Register() {
   const navigate = useNavigate();
   const { token } = useAuth();
-
-  if (token) {
-    console.log('User is already logged in');
-  }
 
   const [formData, setFormData] = useState({
     username: "",
@@ -100,6 +96,9 @@ export function Register() {
             Register
           </Button>
         </form>
+        {token ? (
+          <Alert severity="warning" action={<Button onClick={() => navigate("/")} color="inherit">Go to main page</Button>}>You are already logged in</Alert>)
+          : <></>}
       </Box>
     </Container>
   );
