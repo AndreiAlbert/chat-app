@@ -5,14 +5,14 @@ interface IUser {
 }
 
 
-interface IMessage {
+export interface IMessage {
     id: number;
     content: string;
-    timeStamp: string,
-    userId: number,
-    user: IUser;
+    timestamp: string,
+    userId: number | null,
+    user: IUser | null;
     chatRoomId: number;
-    chatRoom: string;
+    chatRoom: IChatRoom | null;
 }
 
 

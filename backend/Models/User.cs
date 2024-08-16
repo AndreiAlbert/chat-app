@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace backend.Models.User;
 
 public class User

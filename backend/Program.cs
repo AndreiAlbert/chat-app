@@ -8,7 +8,10 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR().AddJsonProtocol(options =>
+{
+    options.PayloadSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ChatAppContext>(options =>
@@ -16,9 +19,9 @@ builder.Services.AddDbContext<ChatAppContext>(options =>
 
 builder.Services.AddCors(opt =>
 {
-    opt.AddPolicy("frontend", builder =>
+    opt.AddDefaultPolicy(builder =>
     {
-        builder.WithOrigins("http://localhost:5173")
+        builder.WithOrigins("http://localhost:5173", "http://localhost:4173")
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();
@@ -77,9 +80,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseCors("frontend");
-
+app.UseCors();
 app.MapHub<ChatHub>("/Chat");
 app.MapControllers();
 

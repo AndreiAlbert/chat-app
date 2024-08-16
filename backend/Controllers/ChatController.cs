@@ -18,6 +18,12 @@ public class ChatController : ControllerBase
         _context = context;
     }
 
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ChatRoom>>> GetRooms()
+    {
+        return await _context.ChatRooms.Select(x => x).ToListAsync();
+    }
+
     [HttpPost("create-chat")]
     public async Task<ActionResult<ChatRoom>> CreateChatRoom(ChatRoom chat)
     {
@@ -35,7 +41,10 @@ public class ChatController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<ChatRoom>> GetChatRoom(int id)
     {
-        var chatRoom = await _context.ChatRooms.FindAsync(id);
+        var chatRoom = await _context.ChatRooms
+            .Include(cr => cr.Messages)
+            .ThenInclude(m => m.User)
+            .FirstOrDefaultAsync(cr => cr.Id == id);
         if (chatRoom == null)
         {
             return NotFound();

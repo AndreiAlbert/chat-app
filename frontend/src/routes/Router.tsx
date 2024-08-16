@@ -1,9 +1,8 @@
 import { Route, Routes } from "react-router-dom";
-import { Login } from "../views/LoginView";
-import { Home } from "../views/Home";
+import { Login } from "../views/Login";
 import { Register } from "../views/Register";
-import { CreateRoom } from "../views/CreateRoom";
-import { ChatRoom } from "../views/Room";
+import { Home } from "../views/Home";
+import { ChatRoom } from "../views/ChatRoom";
 
 export function Router() {
   return (
@@ -12,8 +11,7 @@ export function Router() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/create-room" element={<CreateRoom />} />
-        <Route path="/chat/:id" element={<ChatRoom />} />
+        <Route path="/chat-room/:id" element={<ChatRoom />} />
       </Routes>
     </>
   )

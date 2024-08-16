@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Authorization;
-// using backend.Models.User;
-using backend.Models.ChatRoom;
 using backend.Context;
 using System.Security.Claims;
 using backend.Models.User;
+using backend.Models.Message;
 
 
 namespace backend.Hubs;
@@ -16,6 +14,41 @@ public class ChatHub : Hub
     public ChatHub(ChatAppContext context)
     {
         _context = context;
+    }
+
+    public async Task SendMessage(Message msg)
+    {
+        try
+        {
+            var userId = Context.User?.FindFirst("id")?.Value;
+            if (userId == null)
+            {
+                return;
+            }
+            var user = await _context.Users.FindAsync(int.Parse(userId));
+            if (user == null)
+            {
+                return;
+            }
+            msg.UserId = int.Parse(userId);
+            msg.User = user;
+            var chatRoom = await _context.ChatRooms.FindAsync(msg.ChatRoomId);
+            if (chatRoom == null)
+            {
+                return;
+            }
+            msg.ChatRoom = chatRoom;
+            _context.Messages.Add(msg);
+            await _context.SaveChangesAsync();
+            await Clients.All.SendAsync("SentMessage", msg);
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error msg: {ex.Message}");
+            Console.WriteLine($"Error stack: {ex.StackTrace}");
+            throw;
+        }
     }
 
     public async Task JoinChat(int chatRoomId)
@@ -45,7 +78,9 @@ public class ChatHub : Hub
             await _context.SaveChangesAsync();
         }
         await Groups.AddToGroupAsync(Context.ConnectionId, chatRoom.Name);
+        Console.WriteLine($"User {username} is added to the group {chatRoom.Name}");
         await Clients.OthersInGroup(chatRoom.Name).SendAsync("UserJoined", username);
+        Console.WriteLine($"UserJoined message sent to others in the group {chatRoom.Name}");
     }
 
     public async Task LeaveChat(int chatRoomId)

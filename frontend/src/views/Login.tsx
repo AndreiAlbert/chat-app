@@ -1,22 +1,21 @@
 import { useState } from "react";
 import { TextField, Button, Container, Typography, Box } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
-import { isAxiosError } from "axios";
 import axiosInstance from "../axios/axios";
+import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 
-export function Register() {
+export function Login() {
   const navigate = useNavigate();
   const { token } = useAuth();
 
   if (token) {
-    console.log('User is already logged in');
+    console.log("User is already logged in");
   }
 
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-    confirmPassword: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,9 +28,8 @@ export function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { username, password } = formData;
     try {
-      const response = await axiosInstance.post('/api/auth/register', { username, password });
+      const response = await axiosInstance.post('/api/auth/login', formData);
       if (response.status !== 200) {
         throw new Error(`Unexpected response status: ${response.status}\n. Error message: ${response.statusText}`);
       }
@@ -55,7 +53,7 @@ export function Register() {
         height="100vh"
       >
         <Typography variant="h4" component="h1" gutterBottom>
-          Register
+          Login
         </Typography>
         <form onSubmit={handleSubmit} style={{ width: '100%' }}>
           <TextField
@@ -79,17 +77,6 @@ export function Register() {
             variant="outlined"
             required
           />
-          <TextField
-            label="Confirm Password"
-            name="confirmPassword"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            required
-          />
           <Button
             type="submit"
             fullWidth
@@ -97,7 +84,7 @@ export function Register() {
             color="primary"
             style={{ marginTop: '16px' }}
           >
-            Register
+            Login
           </Button>
         </form>
       </Box>
