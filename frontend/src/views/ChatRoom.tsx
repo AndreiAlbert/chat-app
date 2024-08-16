@@ -52,7 +52,7 @@ export function ChatRoom() {
     })
 
     connection.on("SentMessage", (msg: IMessage) => {
-      console.log(JSON.stringify(msg))
+      setMessages((prevMessages) => prevMessages ? [...prevMessages, msg] : [msg]);
     })
 
     connection.onclose(() => {
