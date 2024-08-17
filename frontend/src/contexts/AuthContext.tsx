@@ -3,17 +3,18 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 interface AuthContextType {
   token: string | null;
+  setToken: (newToken: string | null) => void
 };
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-const AuthContext = createContext<AuthContextType>({ token: "" });
+const AuthContext = createContext<AuthContextType>({ token: "", setToken: () => { } });
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken_] = useState(localStorage.getItem("token"));
-  const setToken = (newToken: string) => {
+  const setToken = (newToken: string | null) => {
     setToken_(newToken)
   }
   useEffect(() => {

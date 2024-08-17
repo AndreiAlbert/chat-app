@@ -17,6 +17,7 @@
     "@types/signalr": "^2.4.3",
     "axios": "^1.7.3",
     "date-fns": "^3.6.0",
+    "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0"

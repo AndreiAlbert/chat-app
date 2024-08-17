@@ -3,6 +3,7 @@ import { Select, MenuItem, FormControl, InputLabel, Container, Typography, Selec
 import axiosInstance from "../axios/axios";
 import { IChatRoom } from "../types/chatRoom";
 import { useNavigate } from "react-router-dom";
+import { TokenExpired } from "../components/TokenExpired";
 
 export function Home() {
   const [rooms, setRooms] = useState<IChatRoom[]>([]);
@@ -64,6 +65,7 @@ export function Home() {
 
   return (
     <Container>
+      <TokenExpired />
       <Typography variant="h4" component="h1" gutterBottom>
         Select a Chat Room
       </Typography>
