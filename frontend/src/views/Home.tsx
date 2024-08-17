@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Select, MenuItem, FormControl, InputLabel, Container, Typography, SelectChangeEvent, Button } from "@mui/material";
+import { Select, MenuItem, FormControl, InputLabel, Container, Typography, SelectChangeEvent, Button, Box, TextField } from "@mui/material";
 import axiosInstance from "../axios/axios";
 import { IChatRoom } from "../types/chatRoom";
 import { useNavigate } from "react-router-dom";
@@ -7,20 +7,22 @@ import { useNavigate } from "react-router-dom";
 export function Home() {
   const [rooms, setRooms] = useState<IChatRoom[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<IChatRoom | null>(null);
+  const [newRoomName, setNewRoomName] = useState<string>("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const response = await axiosInstance.get("/api/chat");
-        if (response.status !== 200) {
-          throw new Error(`unexpected response status: ${response.status}.\n Error message: ${response.statusText}`);
-        }
-        setRooms(response.data);
-      } catch (err: unknown) {
-        console.log(err);
+  const fetchRooms = async () => {
+    try {
+      const response = await axiosInstance.get("/api/chat");
+      if (response.status !== 200) {
+        throw new Error(`unexpected response status: ${response.status}.\n Error message: ${response.statusText}`);
       }
-    };
+      setRooms(response.data);
+    } catch (err: unknown) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
     fetchRooms();
   }, []);
 
@@ -36,6 +38,28 @@ export function Home() {
       return;
     }
     navigate(`/chat-room/${selectedRoom.id}`);
+  }
+
+  const handleCreateRoom = async () => {
+    if (newRoomName.trim() == "") {
+      return;
+    }
+    const newRoomObj: IChatRoom = {
+      id: 0,
+      name: newRoomName,
+      messages: [],
+      users: [],
+    }
+    try {
+      const response = await axiosInstance.post("/api/chat/create-chat", newRoomObj);
+      if (response.status == 200) {
+        setNewRoomName("");
+        await fetchRooms();
+      }
+      console.log(response);
+    } catch (err: unknown) {
+      console.log(err)
+    }
   }
 
   return (
@@ -59,6 +83,26 @@ export function Home() {
         </Select>
       </FormControl>
       <Button variant="contained" onClick={handleJoin}>Join Room</Button>
+      <Box marginTop={4}>
+        <Typography variant="h5" component="h4" gutterBottom>
+          Create a new chat room
+        </Typography>
+        <FormControl fullWidth variant="outlined" margin="normal">
+          <TextField
+            label="Chat room name"
+            variant="outlined"
+            value={newRoomName}
+            onChange={(e) => setNewRoomName(e.target.value)}
+          />
+        </FormControl>
+        <Button
+          variant="contained"
+          onClick={handleCreateRoom}
+          sx={{ marginTop: 2 }}
+        >
+          Create room
+        </Button>
+      </Box>
     </Container>
   );
 }
