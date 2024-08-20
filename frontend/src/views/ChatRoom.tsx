@@ -94,7 +94,7 @@ export function ChatRoom() {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "75vh" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "75vh", marginTop: "50px", paddingTop: "50px" }}>
       {room && messages ? (
         <>
           <Typography variant="h4" gutterBottom>
