@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 export function Login() {
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, setToken } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -29,7 +29,7 @@ export function Login() {
         throw new Error(`Unexpected response status: ${response.status}\n. Error message: ${response.statusText}`);
       }
       const { token } = response.data;
-      localStorage.setItem("token", token);
+      setToken(token);
       navigate("/");
     } catch (error: unknown) {
       if (isAxiosError(error)) {

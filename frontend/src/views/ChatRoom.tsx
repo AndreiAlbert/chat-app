@@ -4,8 +4,9 @@ import { BASE_URL } from "../consts/consts";
 import { useParams } from "react-router-dom";
 import { IChatRoom, IMessage } from "../types/chatRoom";
 import axiosInstance from "../axios/axios";
-import { Box, Button, Card, CardContent, TextField, Typography } from "@mui/material";
+import { Box, Button, Card, CardContent, TextareaAutosize, Typography } from "@mui/material";
 import { format } from "date-fns";
+import React from "react";
 
 export function ChatRoom() {
   const [conn, setConn] = useState<HubConnection | null>(null);
@@ -68,6 +69,9 @@ export function ChatRoom() {
     if (!id || !conn) {
       return;
     }
+    if (!newMessage.trim()) {
+      return;
+    }
     const newMessageObj: IMessage = {
       id: 0,
       content: newMessage,
@@ -111,7 +115,14 @@ export function ChatRoom() {
                   <Typography variant="h6">
                     {message.user ? message.user.username : "Unknown User"}
                   </Typography>
-                  <Typography variant="body1">{message.content}</Typography>
+                  <Typography variant="body1">{
+                    message.content.split('\n').map((line, index) => (
+                      <React.Fragment key={index}>
+                        {line}
+                        <br />
+                      </React.Fragment>
+                    ))
+                  }</Typography>
                   <Typography variant="caption" color="textSecondary">
                     {format(message.timestamp, 'dd MMM HH:mm')}
                   </Typography>
@@ -119,19 +130,22 @@ export function ChatRoom() {
               </Card>
             ))}
           </Box>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Type you message"
+          <Box sx={{ display: "flex", alignItems: "flex-end", gap: 2 }}>
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Type your message..."
               value={newMessage}
               onChange={handleNewMessageChanghe}
-              onKeyPress={(e) => {
-                if (e.key == 'Enter') {
-                  sendMessage();
-                }
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "4px",
+                borderColor: "#ccc",
+                fontSize: "16px",
+                fontFamily: "Arial, sans-serif",
+                resize: "none",
+                boxSizing: "border-box",
               }}
-              sx={{ marginRight: 2 }}
             />
             <Button variant="contained" onClick={sendMessage}>Send message</Button>
           </Box>
